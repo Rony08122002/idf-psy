@@ -1,0 +1,368 @@
+/* קובץ עיצוב ראשי לאפליקציית חיילתAI */
+
+:root {
+    /* צבעים ראשיים */
+    --primary-color: #3b82f6; /* כחול צה"ל */
+    --primary-light: #93c5fd;
+    --primary-dark: #1d4ed8;
+    
+    /* צבעים משניים */
+    --secondary-color: #f472b6; /* ורוד לפריטי חיילת */
+    --secondary-light: #fbcfe8;
+    --secondary-dark: #db2777;
+    
+    /* צבעי רקע */
+    --bg-gradient-start: #e0f2fe;
+    --bg-gradient-end: #fce7f3;
+    --bg-card: #ffffff;
+    --bg-chat-user: #dbeafe;
+    --bg-chat-bot: #fce7f3;
+    
+    /* צבעי טקסט */
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-light: #94a3b8;
+    --text-dark: #0f172a;
+    --text-white: #ffffff;
+    
+    /* מרווחים */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    /* צללים */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* עיגולים */
+    --rounded-sm: 0.25rem;
+    --rounded-md: 0.5rem;
+    --rounded-lg: 1rem;
+    --rounded-xl: 1.5rem;
+    --rounded-full: 9999px;
+    
+    /* אנימציות */
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 300ms ease-in-out;
+    --transition-slow: 500ms ease-in-out;
+  }
+  
+  /* הגדרות גלובליות */
+  body, html {
+    font-family: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    min-height: 100vh;
+    color: var(--text-primary);
+    direction: rtl;
+  }
+  
+  /* עיצוב גלילה */
+  ::-webkit-scrollbar {
+    width: 8px;
+    border-radius: var(--rounded-full);
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: var(--rounded-full);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: var(--rounded-full);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+  }
+  
+  /* כותרות */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-dark);
+  }
+  
+  /* כפתורים */
+  .btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--rounded-lg);
+    font-weight: 600;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+  }
+  
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--text-white);
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--secondary-dark);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-outline:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+  }
+  
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--text-secondary);
+    box-shadow: none;
+  }
+  
+  .btn-ghost:hover:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-dark);
+  }
+  
+  /* כרטיסים */
+  .card {
+    background-color: var(--bg-card);
+    border-radius: var(--rounded-xl);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    transition: box-shadow var(--transition-normal);
+  }
+  
+  .card:hover {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* כניסות - הודעות צ'אט */
+  .message {
+    padding: var(--spacing-md);
+    border-radius: var(--rounded-lg);
+    max-width: 80%;
+    margin-bottom: var(--spacing-md);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .message-user {
+    background-color: var(--bg-chat-user);
+    align-self: flex-end;
+    margin-right: auto;
+    text-align: left;
+  }
+  
+  .message-bot {
+    background-color: var(--bg-chat-bot);
+    align-self: flex-start;
+    margin-left: auto;
+    text-align: right;
+  }
+  
+  /* טפסים וקלט */
+  .input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: var(--rounded-lg);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: var(--bg-card);
+    padding: var(--spacing-sm);
+    transition: all var(--transition-normal);
+  }
+  
+  .input-group:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+  }
+  
+  .input {
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    width: 100%;
+    font-size: 1rem;
+    background: transparent;
+    outline: none;
+    text-align: right;
+  }
+  
+  .input::placeholder {
+    color: var(--text-light);
+  }
+  
+  /* אנימציות */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .pulse {
+    animation: pulse 1.5s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .bounce-slow {
+    animation: bounce 2s infinite;
+  }
+  
+  /* תמונות */
+  .avatar {
+    border-radius: var(--rounded-full);
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* סגנונות ספציפיים לאפליקציה */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 0 auto;
+    height: calc(100vh - 2rem);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: var(--rounded-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .chat-header {
+    padding: var(--spacing-md);
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .chat-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat-footer {
+    padding: var(--spacing-md);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: var(--bg-card);
+  }
+  
+  .chat-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .badge {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--rounded-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .badge-primary {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+  }
+  
+  .badge-secondary {
+    background-color: var(--secondary-light);
+    color: var(--secondary-dark);
+  }
+  
+  /* אפקטים */
+  .glass {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  
+  .typing-indicator {
+    display: flex;
+    gap: var(--spacing-xs);
+  }
+  
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--rounded-full);
+    background-color: var(--secondary-dark);
+    opacity: 0.7;
+  }
+  
+  .typing-dot:nth-child(1) {
+    animation: bounce 0.6s infinite;
+  }
+  
+  .typing-dot:nth-child(2) {
+    animation: bounce 0.6s 0.2s infinite;
+  }
+  
+  .typing-dot:nth-child(3) {
+    animation: bounce 0.6s 0.4s infinite;
+  }
+  
+  /* עיצוב ריספונסיבי */
+  @media (max-width: 768px) {
+    .chat-container {
+      height: 100vh;
+      max-width: 100%;
+      border-radius: 0;
+    }
+    
+    .message {
+      max-width: 90%;
+    }
+    
+    .chat-controls button {
+      font-size: 0.85rem;
+      padding: var(--spacing-xs) var(--spacing-md);
+    }
+  }
