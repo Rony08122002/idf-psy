@@ -1,0 +1,92 @@
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { format } from "date-fns";
+
+export default function MoodTrends({ conversations }) {
+  const getMoodData = () => {
+    return conversations
+      .filter(conv => conv.mood_assessment?.mood_score)
+      .slice(-7)
+      .map(conv => ({
+        date: format(new Date(conv.created_date), "MMM d"),
+        mood: conv.mood_assessment.mood_score,
+        category: conv.mood_assessment.mood_category
+      }))
+      .reverse();
+  };
+
+  const data = getMoodData();
+  const latestMood = data[data.length - 1]?.mood || 0;
+  const previousMood = data[data.length - 2]?.mood || 0;
+  const trend = latestMood - previousMood;
+
+  const getTrendIcon = () => {
+    if (trend > 0) return <TrendingUp className="w-4 h-4 text-green-600" />;
+    if (trend < 0) return <TrendingDown className="w-4 h-4 text-red-600" />;
+    return <Minus className="w-4 h-4 text-gray-400" />;
+  };
+
+  return (
+    <Card className="border-none shadow-lg bg-white/90 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-blue-600" />
+            Mood Trends (7 Days)
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            {getTrendIcon()}
+            <span className={`font-medium ${
+              trend > 0 ? 'text-green-600' : 
+              trend < 0 ? 'text-red-600' : 'text-gray-500'
+            }`}>
+              {trend > 0 ? '+' : ''}{trend.toFixed(1)}
+            </span>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {data.length > 0 ? (
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="date" 
+                stroke="#666" 
+                fontSize={12}
+              />
+              <YAxis 
+                domain={[1, 10]} 
+                stroke="#666" 
+                fontSize={12}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="mood" 
+                stroke="#3b82f6" 
+                strokeWidth={3}
+                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p>Start tracking your mood with daily check-ins</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

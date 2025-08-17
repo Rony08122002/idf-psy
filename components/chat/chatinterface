@@ -1,0 +1,142 @@
+
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Send, Mic, MicOff, User, Bot } from "lucide-react";
+import { format } from "date-fns";
+
+export default function ChatInterface({
+  messages,
+  currentMessage,
+  setCurrentMessage,
+  onSendMessage,
+  isLoading,
+  mode,
+  isRecording,
+  setIsRecording,
+  messagesEndRef
+}) {
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSendMessage(currentMessage);
+  };
+
+  const toggleRecording = () => {
+    if (mode === 'voice' || mode === 'video') {
+      setIsRecording(!isRecording);
+      // Voice recording functionality would be implemented here
+    }
+  };
+
+  return (
+    <Card className="border-none shadow-xl bg-white/90 backdrop-blur-sm h-[600px] flex flex-col">
+      
+      {/* Messages Area */}
+      <CardContent className="flex-1 p-6 overflow-y-auto">
+        <div className="space-y-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex items-start gap-3 ${
+                // User messages are on the left, bot messages on the right (mirrored for RTL)
+                message.role === 'user' ? 'flex-row' : 'flex-row-reverse'
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                message.role === 'user' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              </div>
+              
+              <div className={`flex-1 max-w-[80%] ${
+                // Text alignment within the bubble: left for left-aligned bubbles (user), right for right-aligned bubbles (bot)
+                message.role === 'user' ? 'text-left' : 'text-right'
+              }`}>
+                <div className={`inline-block p-4 rounded-2xl ${
+                  // Bubble corner: top-left for user (left-aligned), top-right for bot (right-aligned)
+                  message.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-tl-sm'
+                    : 'bg-gray-100 text-gray-900 rounded-tr-sm'
+                }`}>
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {format(new Date(message.timestamp), 'HH:mm')}
+                </p>
+              </div>
+            </div>
+          ))}
+          
+          {isLoading && (
+            // Loading indicator for bot, aligned to the right (mirrored for RTL)
+            <div className="flex items-start gap-3 flex-row-reverse">
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-gray-600" />
+              </div>
+              <div className="bg-gray-100 rounded-2xl rounded-tr-sm p-4">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+      </CardContent>
+
+      {/* Input Area */}
+      <div className="p-4 border-t border-gray-100">
+        <form onSubmit={handleSubmit} className="flex items-center gap-3">
+          
+          <Input
+            value={currentMessage}
+            onChange={(e) => setCurrentMessage(e.target.value)}
+            placeholder={
+              mode === 'voice' ? "דבר או הקלד את ההודעה שלך..." :
+              mode === 'video' ? "דבר עם הבינה המלאכותית שלך..." :
+              "הקלד את המחשבות והרגשות שלך..."
+            }
+            className="flex-1 rounded-full border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+            disabled={isLoading}
+          />
+
+          {(mode === 'voice' || mode === 'video') && (
+            <Button
+              type="button"
+              size="icon"
+              variant={isRecording ? "destructive" : "outline"}
+              onClick={toggleRecording}
+              className="shrink-0"
+            >
+              {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
+          )}
+
+          <Button
+            type="submit"
+            size="icon"
+            className="shrink-0 bg-blue-600 hover:bg-blue-700 rounded-full"
+            disabled={isLoading || !currentMessage.trim()}
+          >
+            {/* Send icon mirrored for RTL */}
+            <Send className="w-4 h-4 scale-x-[-1]" />
+          </Button>
+        </form>
+
+        {(mode === 'voice' || mode === 'video') && isRecording && (
+          <div className="flex items-center justify-center mt-2 text-red-600">
+            <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse ml-2"></div>
+            <span className="text-sm">מקליט...</span>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}

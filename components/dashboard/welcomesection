@@ -1,0 +1,73 @@
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { he } from "date-fns/locale";
+
+export default function WelcomeSection({ user, todaysCheckin }) {
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "בוקר טוב";
+    if (hour < 17) return "צהריים טובים";
+    return "ערב טוב";
+  };
+
+  const getBranchName = (branch) => {
+    const branches = {
+      ground_forces: "כוחות יבשה",
+      air_force: "חיל האוויר", 
+      navy: "חיל הים",
+      intelligence: "אמ\"ן",
+      technology: "תקשוב",
+      logistics: "אג\"ם",
+      reserves: "מילואים"
+    };
+    return branches[branch] || branch;
+  };
+
+  return (
+    <Card className="border-none shadow-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <CardContent className="p-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              {getTimeGreeting()}, {user?.full_name || 'חייל'}
+            </h1>
+            <p className="text-blue-100 mb-4">
+              הבינה המלאכותית שלך לתמיכה נפשית כאן כדי לתמוך בך היום
+            </p>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                {format(new Date(), "EEEE, d בMMMM", { locale: he })}
+              </Badge>
+              {user?.service_branch && (
+                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                  {getBranchName(user.service_branch)}
+                </Badge>
+              )}
+              {user?.rank && (
+                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                  {user.rank}
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 md:mt-0">
+            {todaysCheckin ? (
+              <div className="flex items-center gap-2 bg-green-500/20 px-4 py-2 rounded-full">
+                <CheckCircle className="w-5 h-5 text-green-300" />
+                <span className="text-green-100">הצ'ק-אין של היום הושלם</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-orange-500/20 px-4 py-2 rounded-full">
+                <Clock className="w-5 h-5 text-orange-300" />
+                <span className="text-orange-100">צ'ק-אין ממתין</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

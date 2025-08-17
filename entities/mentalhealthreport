@@ -1,0 +1,60 @@
+{
+  "name": "MentalHealthReport",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "Reference to the conversation"
+    },
+    "assessment_summary": {
+      "type": "string",
+      "description": "Professional summary of mental state"
+    },
+    "mood_trends": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "mood_score": {
+            "type": "number"
+          },
+          "stress_level": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "urgency_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "shared_with": {
+      "type": "string",
+      "description": "Mental health professional contact"
+    },
+    "user_consent": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "conversation_id",
+    "assessment_summary",
+    "urgency_level"
+  ]
+}

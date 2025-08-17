@@ -1,0 +1,56 @@
+
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { Smile, Meh, Frown } from "lucide-react";
+
+export default function MoodSlider({ moodScore, setMoodScore }) {
+  const getMoodEmoji = (score) => {
+    if (score >= 7) return <Smile className="w-5 h-5 text-green-600" />;
+    if (score >= 4) return <Meh className="w-5 h-5 text-yellow-600" />;
+    return <Frown className="w-5 h-5 text-red-600" />;
+  };
+
+  const getMoodColor = (score) => {
+    if (score >= 7) return "text-green-600";
+    if (score >= 4) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  return (
+    <Card className="border-none shadow-lg bg-white/90 backdrop-blur-sm">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm flex items-center justify-between">
+          מצב רוח נוכחי
+          <div className="flex items-center gap-2">
+            {getMoodEmoji(moodScore)}
+            <span className={`font-bold ${getMoodColor(moodScore)}`}>
+              {moodScore}/10
+            </span>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="space-y-4">
+          <Slider
+            value={[moodScore]}
+            onValueChange={(values) => setMoodScore(values[0])}
+            max={10}
+            min={1}
+            step={1}
+            className="w-full"
+          />
+          
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>😢 גרוע</span>
+            <span>😊 מצוין</span>
+          </div>
+          
+          <p className="text-xs text-gray-600 text-center">
+            הזז כדי לדרג איך אתה מרגיש עכשיו
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

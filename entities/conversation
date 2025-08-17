@@ -1,0 +1,90 @@
+{
+  "name": "Conversation",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "text",
+        "voice",
+        "video"
+      ],
+      "description": "Communication mode used"
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Conversation messages"
+    },
+    "mood_assessment": {
+      "type": "object",
+      "properties": {
+        "mood_category": {
+          "type": "string",
+          "enum": [
+            "positive",
+            "neutral",
+            "negative"
+          ]
+        },
+        "stress_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "mood_score": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "sentiment_analysis": {
+          "type": "string"
+        }
+      }
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Length of conversation in minutes"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI recommendations based on conversation"
+    },
+    "report_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "report_shared": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "mode",
+    "messages"
+  ]
+}
