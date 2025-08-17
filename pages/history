@@ -1,0 +1,286 @@
+import React, { useState, useEffect } from "react";
+import { Conversation } from "@/entities/Conversation";
+import { User } from "@/entities/User";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar, MessageCircle, TrendingUp, Filter, Eye } from "lucide-react";
+import { format } from "date-fns";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+export default function History() {
+  const [conversations, setConversations] = useState([]);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [filterMode, setFilterMode] = useState("all");
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    try {
+      const currentUser = await User.me();
+      setUser(currentUser);
+      
+      const userConversations = await Conversation.filter(
+        { created_by: currentUser.email },
+        "-created_date"
+      );
+      setConversations(userConversations);
+      
+    } catch (error) {
+      console.error("Error loading history:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getMoodChartData = () => {
+    return conversations
+      .filter(conv => conv.mood_assessment?.mood_score)
+      .slice(-14)
+      .map(conv => ({
+        date: format(new Date(conv.created_date), "MMM d"),
+        mood: conv.mood_assessment.mood_score,
+        category: conv.mood_assessment.mood_category
+      }))
+      .reverse();
+  };
+
+  const filteredConversations = conversations.filter(conv => {
+    if (filterMode === "all") return true;
+    return conv.mode === filterMode;
+  });
+
+  const getMoodBadgeVariant = (category) => {
+    if (category === 'positive') return 'default';
+    if (category === 'negative') return 'destructive';
+    return 'secondary';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Your Mental Health Journey
+          </h1>
+          <p className="text-gray-600">
+            Track your progress and review past conversations
+          </p>
+        </div>
+
+        {/* Mood Trend Chart */}
+        <Card className="border-none shadow-xl bg-white/90 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+              Mood Trends (Last 14 Days)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {getMoodChartData().length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={getMoodChartData()}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="date" stroke="#666" fontSize={12} />
+                  <YAxis domain={[1, 10]} stroke="#666" fontSize={12} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #e0e0e0',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="mood" 
+                    stroke="#3b82f6" 
+                    strokeWidth={3}
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p>Start having conversations to see your mood trends</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="grid lg:grid-cols-4 gap-8">
+          
+          {/* Conversation History */}
+          <div className="lg:col-span-3">
+            <Card className="border-none shadow-xl bg-white/90 backdrop-blur-sm">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-blue-600" />
+                    Conversation History ({filteredConversations.length})
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    {['all', 'text', 'voice', 'video'].map(mode => (
+                      <Button
+                        key={mode}
+                        variant={filterMode === mode ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilterMode(mode)}
+                        className="capitalize"
+                      >
+                        {mode}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {filteredConversations.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredConversations.map((conversation) => (
+                      <div
+                        key={conversation.id}
+                        className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                        onClick={() => setSelectedConversation(
+                          selectedConversation?.id === conversation.id ? null : conversation
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <Calendar className="w-4 h-4 text-gray-500" />
+                            <span className="font-medium">
+                              {format(new Date(conversation.created_date), "MMM d, yyyy 'at' HH:mm")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="capitalize">
+                              {conversation.mode}
+                            </Badge>
+                            {conversation.mood_assessment && (
+                              <Badge variant={getMoodBadgeVariant(conversation.mood_assessment.mood_category)}>
+                                {conversation.mood_assessment.mood_category}
+                              </Badge>
+                            )}
+                            <Button variant="ghost" size="icon">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        {conversation.duration_minutes && (
+                          <p className="text-sm text-gray-600">
+                            Duration: {conversation.duration_minutes} minutes
+                          </p>
+                        )}
+
+                        {selectedConversation?.id === conversation.id && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            {conversation.mood_assessment && (
+                              <div className="mb-4">
+                                <h4 className="font-semibold mb-2">Assessment Results:</h4>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-gray-600">Mood Score: </span>
+                                    <span className="font-medium">{conversation.mood_assessment.mood_score}/10</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">Stress Level: </span>
+                                    <span className="font-medium capitalize">{conversation.mood_assessment.stress_level}</span>
+                                  </div>
+                                </div>
+                                {conversation.mood_assessment.sentiment_analysis && (
+                                  <div className="mt-2">
+                                    <span className="text-gray-600">Notes: </span>
+                                    <p className="text-sm italic">{conversation.mood_assessment.sentiment_analysis}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
+                            {conversation.recommendations && conversation.recommendations.length > 0 && (
+                              <div>
+                                <h4 className="font-semibold mb-2">Recommendations:</h4>
+                                <ul className="space-y-1">
+                                  {conversation.recommendations.map((rec, index) => (
+                                    <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
+                                      <span className="text-blue-600">•</span>
+                                      <span>{rec}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p>No conversations found with the selected filter</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Stats Sidebar */}
+          <div className="space-y-6">
+            <Card className="border-none shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-sm">Quick Stats</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{conversations.length}</p>
+                    <p className="text-sm text-gray-600">Total Check-ins</p>
+                  </div>
+                  
+                  {conversations.length > 0 && (
+                    <>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-green-600">
+                          {(conversations
+                            .filter(c => c.mood_assessment?.mood_score)
+                            .reduce((sum, c) => sum + c.mood_assessment.mood_score, 0) / 
+                           conversations.filter(c => c.mood_assessment?.mood_score).length || 0
+                          ).toFixed(1)}
+                        </p>
+                        <p className="text-sm text-gray-600">Average Mood</p>
+                      </div>
+                      
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-600">
+                          {Math.round(conversations.reduce((sum, c) => sum + (c.duration_minutes || 0), 0) / conversations.length)}
+                        </p>
+                        <p className="text-sm text-gray-600">Avg Session (min)</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

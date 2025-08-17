@@ -1,0 +1,320 @@
+
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { 
+  BookOpen, 
+  Heart, 
+  Brain, 
+  Shield, 
+  Users, 
+  Phone,
+  Search,
+  ExternalLink,
+  PlayCircle,
+  FileText
+} from "lucide-react";
+
+export default function Resources() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const resourceCategories = [
+    {
+      id: "stress",
+      title: "ניהול מתח ולחץ",
+      icon: Brain,
+      color: "bg-blue-500",
+      resources: [
+        {
+          title: "טכניקות נשימה עמוקה",
+          description: "למד נשימה 4-7-8 וטכניקות הרגעה נוספות",
+          type: "guide",
+          duration: "5 דקות קריאה",
+          url: "#"
+        },
+        {
+          title: "הרפיה מתקדמת של השרירים",
+          description: "מדריך שלב אחר שלב לשחרור מתח פיזי",
+          type: "video",
+          duration: "15 דקות",
+          url: "#"
+        },
+        {
+          title: "מחזור התגובה ללחץ",
+          description: "הבנת התגובה של הגוף ללחץ",
+          type: "article",
+          duration: "8 דקות קריאה",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: "resilience",
+      title: "בניית עמידות נפשית",
+      icon: Shield,
+      color: "bg-green-500",
+      resources: [
+        {
+          title: "חוזק נפשי לחיילים",
+          description: "אסטרטגיות שפותחו במיוחד עבור אנשי צבא",
+          type: "guide",
+          duration: "12 דקות קריאה",
+          url: "#"
+        },
+        {
+          title: "התאוששות מכישלונות",
+          description: "איך להתאושש ולגדול מחוויות קשות",
+          type: "article",
+          duration: "10 דקות קריאה",
+          url: "#"
+        },
+        {
+          title: "בניית רשתות תמיכה",
+          description: "יצירת קשרים המחזקים את העמידות",
+          type: "guide",
+          duration: "7 דקות קריאה",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: "sleep",
+      title: "שינה והתאוששות",
+      icon: Heart,
+      color: "bg-purple-500",
+      resources: [
+        {
+          title: "היגיינת שינה לעובדי משמרות",
+          description: "שיפור השינה למרות לוחות זמנים לא סדירים",
+          type: "guide",
+          duration: "6 דקות קריאה",
+          url: "#"
+        },
+        {
+          title: "מדיטציית שינה מונחית",
+          description: "מדיטציה מרגיעה לשיפור איכות השינה",
+          type: "audio",
+          duration: "20 דקות",
+          url: "#"
+        },
+        {
+          title: "אסטרטגיות התאוששות",
+          description: "טכניקות התאוששות פיזית ונפשית",
+          type: "article",
+          duration: "9 דקות קריאה",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: "communication",
+      title: "תקשורת ויחסים",
+      icon: Users,
+      color: "bg-orange-500",
+      resources: [
+        {
+          title: "לדבר עם המשפחה על חיי צבא",
+          description: "גישור על הפער בין אזרחי לצבאי",
+          type: "guide",
+          duration: "11 דקות קריאה",
+          url: "#"
+        },
+        {
+          title: "כישורי פתרון קונפליקטים",
+          description: "דרכים בריאות להתמודד עם חילוקי דעות",
+          type: "article",
+          duration: "8 דקות קריאה",
+          url: "#"
+        },
+        {
+          title: "בניית לכידות צוות",
+          description: "חיזוק הקשרים עם חברי השירות",
+          type: "guide",
+          duration: "10 דקות קריאה",
+          url: "#"
+        }
+      ]
+    }
+  ];
+
+  const emergencyContacts = [
+    {
+      name: "עמ\"ן - קו חם בריאות הנפש",
+      number: "1201",
+      description: "תמיכה סודית 24/7 לאנשי צה\"ל",
+      urgent: true
+    },
+    {
+      name: "שירותי בריאות הנפש בבסיס",
+      number: "צור קשר עם היחידה שלך",
+      description: "שירותי ייעוץ ותמיכה בבסיס",
+      urgent: false
+    },
+    {
+      name: "ער\"ן - עזרה ראשונה נפשית",
+      number: "1201",
+      description: "עמותה לעזרה נפשית ראשונה",
+      urgent: true
+    }
+  ];
+
+  const getResourceIcon = (type) => {
+    switch (type) {
+      case 'video': return <PlayCircle className="w-4 h-4" />;
+      case 'audio': return <PlayCircle className="w-4 h-4" />;
+      case 'article': return <FileText className="w-4 h-4" />;
+      default: return <BookOpen className="w-4 h-4" />;
+    }
+  };
+
+  const filteredCategories = resourceCategories.map(category => ({
+    ...category,
+    resources: category.resources.filter(resource =>
+      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  })).filter(category => category.resources.length > 0);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 md:p-8" dir="rtl">
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            משאבי בריאות נפש
+          </h1>
+          <p className="text-gray-600 mb-6">
+            כלים ואסטרטגיות מבוססי מחקר למסע הרווחה הנפשית שלך
+          </p>
+          
+          {/* Search */}
+          <div className="max-w-md mx-auto relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="חפש משאבים..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10 rounded-full border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Emergency Support */}
+        <Card className="border-red-200 shadow-xl bg-red-50 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-800">
+              <Phone className="w-5 h-5" />
+              תמיכה חירום ומשאבי משבר
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              {emergencyContacts.map((contact, index) => (
+                <div key={index} className={`p-4 rounded-lg ${contact.urgent ? 'bg-red-100 border border-red-200' : 'bg-white border border-gray-200'}`}>
+                  <h3 className="font-semibold text-gray-900 mb-1">{contact.name}</h3>
+                  <p className={`text-lg font-bold mb-2 ${contact.urgent ? 'text-red-700' : 'text-blue-600'}`}>
+                    {contact.number}
+                  </p>
+                  <p className="text-sm text-gray-600">{contact.description}</p>
+                  {contact.urgent && (
+                    <Badge className="mt-2 bg-red-600">זמין 24/7</Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Resource Categories */}
+        <div className="space-y-8">
+          {filteredCategories.map((category) => (
+            <Card key={category.id} className="border-none shadow-xl bg-white/90 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${category.color}`}>
+                    <category.icon className="w-6 h-6 text-white" />
+                  </div>
+                  {category.title}
+                  <Badge variant="outline">
+                    {category.resources.length} משאבים
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {category.resources.map((resource, index) => (
+                    <div key={index} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          {getResourceIcon(resource.type)}
+                          <Badge variant="outline" className="text-xs">
+                            {resource.type === 'guide' ? 'מדריך' : 
+                             resource.type === 'video' ? 'וידאו' :
+                             resource.type === 'audio' ? 'אודיו' : 'מאמר'}
+                          </Badge>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                      </div>
+                      
+                      <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        {resource.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {resource.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        ⏱️ {resource.duration}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredCategories.length === 0 && searchTerm && (
+          <div className="text-center py-12">
+            <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">
+              לא נמצאו משאבים
+            </h3>
+            <p className="text-gray-500">
+              נסה לשנות את מילות החיפוש או עיין בכל הקטגוריות
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setSearchTerm("")}
+              className="mt-4"
+            >
+              נקה חיפוש
+            </Button>
+          </div>
+        )}
+
+        {/* Additional Support */}
+        <Card className="border-none shadow-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <CardContent className="p-8 text-center">
+            <Heart className="w-12 h-12 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">זקוק לתמיכה אישית יותר?</h2>
+            <p className="mb-6 text-blue-100">
+              זכור שלבקש עזרה מקצועית הוא סימן של כוח, לא חולשה.
+              אנשי מקצוע בבריאות הנפש הצבאית מיומנים במיוחד להבין את החוויות שלך.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="secondary" className="bg-white text-blue-600 hover:bg-blue-50">
+                מצא יועץ
+              </Button>
+              <Button variant="outline" className="border-white text-white hover:bg-white/10">
+                קבע יעוץ
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

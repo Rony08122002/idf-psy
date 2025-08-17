@@ -1,0 +1,189 @@
+
+import React, { useState, useEffect } from "react";
+import { User } from "@/entities/User";
+import { Conversation } from "@/entities/Conversation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MessageCircle, Mic, Video, TrendingUp, Calendar, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { he } from 'date-fns/locale'; // Import Hebrew locale
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+
+import WelcomeSection from "../components/dashboard/WelcomeSection";
+import MoodTrends from "../components/dashboard/MoodTrends";
+import QuickStats from "../components/dashboard/QuickStats";
+
+export default function Dashboard() {
+  const [user, setUser] = useState(null);
+  const [recentConversations, setRecentConversations] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [todaysCheckin, setTodaysCheckin] = useState(false);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const currentUser = await User.me();
+      setUser(currentUser);
+      
+      const conversations = await Conversation.filter(
+        { created_by: currentUser.email },
+        "-created_date",
+        5
+      );
+      setRecentConversations(conversations);
+      
+      // Check if user has done today's check-in
+      const today = format(new Date(), "yyyy-MM-dd");
+      const todayConversation = conversations.find(conv => 
+        format(new Date(conv.created_date), "yyyy-MM-dd") === today
+      );
+      setTodaysCheckin(!!todayConversation);
+      
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const communicationModes = [
+    {
+      id: "text",
+      title: "צ'אט טקסט",
+      description: "הקלד את המחשבות והרגשות שלך",
+      icon: MessageCircle,
+      color: "bg-blue-500",
+      path: "Chat?mode=text"
+    },
+    {
+      id: "voice", 
+      title: "צ'אט קולי",
+      description: "דבר באופן טבעי עם הבינה המלאכותית",
+      icon: Mic,
+      color: "bg-purple-500",
+      path: "Chat?mode=voice"
+    },
+    {
+      id: "video",
+      title: "צ'אט וידאו", 
+      description: "פנים אל פנים עם האווטאר המונפש",
+      icon: Video,
+      color: "bg-green-500",
+      path: "Chat?mode=video"
+    }
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 md:p-8" dir="rtl">
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        <WelcomeSection user={user} todaysCheckin={todaysCheckin} />
+
+        {/* Daily Check-in Section */}
+        <Card className="border-none shadow-xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-2xl font-bold text-gray-900">
+              {todaysCheckin ? "המשך במסע שלך" : "התחל את הצ'ק-אין היומי"}
+            </CardTitle>
+            <p className="text-gray-600 mt-2">
+              בחר איך תרצה להתחבר היום עם הבינה המלאכותית שלך
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-6">
+              {communicationModes.map((mode) => (
+                <Link key={mode.id} to={createPageUrl(mode.path)}>
+                  <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-gray-100">
+                    <CardContent className="p-6 text-center">
+                      <div className={`w-16 h-16 ${mode.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                        <mode.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="font-bold text-lg mb-2 text-gray-900">{mode.title}</h3>
+                      <p className="text-gray-600 text-sm">{mode.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Dashboard Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <MoodTrends conversations={recentConversations} />
+            
+            {/* Recent Activity */}
+            <Card className="border-none shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  שיחות אחרונות
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {recentConversations.length > 0 ? (
+                  <div className="space-y-4">
+                    {recentConversations.slice(0, 3).map((conversation) => (
+                      <div key={conversation.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <MessageCircle className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {format(new Date(conversation.created_date), "d בMMMM, yyyy", { locale: he })}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {conversation.mode === 'text' ? 'שיחת טקסט' : 
+                               conversation.mode === 'voice' ? 'שיחה קולית' : 
+                               'שיחת וידאו'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          {conversation.mood_assessment && (
+                            <Badge variant={
+                              conversation.mood_assessment.mood_category === 'positive' ? 'default' :
+                              conversation.mood_assessment.mood_category === 'neutral' ? 'secondary' : 'destructive'
+                            }>
+                              {conversation.mood_assessment.mood_category === 'positive' ? 'חיובי' :
+                               conversation.mood_assessment.mood_category === 'neutral' ? 'ניטרלי' : 
+                               'שלילי'}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p>עדיין אין שיחות. התחל את הצ'ק-אין הראשון שלך!</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
+            <QuickStats conversations={recentConversations} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
